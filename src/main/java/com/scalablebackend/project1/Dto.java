@@ -27,4 +27,12 @@ public class Dto {
     public Integer getTotal() {
         return total;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "top10=" + top10 +
+                ", total=" + total +
+                '}';
+    }
 }

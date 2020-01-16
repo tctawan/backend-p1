@@ -1,9 +1,15 @@
 package com.scalablebackend.project1;
 
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,9 +21,14 @@ import java.util.regex.Pattern;
 @Service
 public class DtoService {
 
+
+    private static final Logger logger = LogManager.getLogger(Controller.class);
+    @Cacheable(cacheNames="wordcount", condition = "! #force",key="#url", sync = true)
     public Dto getWordCount(String url, Boolean force) throws IOException{
             int totalCount = 0;
+            logger.info("execute " + url);
             Document doc = Jsoup.connect(url).get();
+
             Elements elements = doc.body().getAllElements();
             List<String> list = Arrays.asList("style", "script", "head", "title", "meta", "[document]");
             Pattern pattern = Pattern.compile("\\b[a-zA-Z]{1,20}\\b");
@@ -45,8 +56,8 @@ public class DtoService {
     }
 
     private List<String> getTop10(HashMap<String, Integer> map) {
-        Set<String> set = map.keySet();
-        List<String> keys = new ArrayList<String>(set);
+        Set<String> set = map.keySet()                                                                                                                                      ;
+        List<String> keys = new ArrayList<>(set);
 
         keys.sort((s1, s2) -> Integer.compare(map.get(s2), map.get(s1)));
 
