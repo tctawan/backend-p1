@@ -3,13 +3,15 @@ package com.scalablebackend.project1;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
+import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.cache.CacheManager;
+
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -23,11 +25,17 @@ public class DtoService {
 
 
     private static final Logger logger = LogManager.getLogger(Controller.class);
-    @Cacheable(cacheNames="wordcount", condition = "! #force",key="#url", sync = true)
-    public Dto getWordCount(String url, Boolean force) throws IOException{
+
+
+    public Response getResponse(String url) throws IOException {
+        Response response = Jsoup.connect(url).execute();
+        return response;
+    }
+
+    @Cacheable(cacheNames="wordcount", condition = "!#force && !#etag.isEmpty()",key="#etag", sync = true)
+    public Dto getWordCount(String etag, Boolean force, Document doc) throws IOException{
             int totalCount = 0;
-            logger.info("execute " + url);
-            Document doc = Jsoup.connect(url).get();
+            logger.info("execute " + etag);
 
             Elements elements = doc.body().getAllElements();
             List<String> list = Arrays.asList("style", "script", "head", "title", "meta", "[document]");
@@ -52,7 +60,7 @@ public class DtoService {
             }
 
             List<String> top10 = getTop10(countMap);
-            return new Dto(top10,totalCount);
+            return new Dto(top10,totalCount,etag, HttpStatus.OK);
     }
 
     private List<String> getTop10(HashMap<String, Integer> map) {
@@ -64,5 +72,9 @@ public class DtoService {
         return keys.subList(0,10);
     }
 
-
+    @CachePut(cacheNames = "wordcount", key = "#dto.etag")
+    public Dto updateStatus(Dto dto, HttpStatus status){
+        Dto updateDto  = new Dto(dto.getTop10(),dto.getTotal(), dto.getEtag(), status);
+        return updateDto;
+    }
 }
