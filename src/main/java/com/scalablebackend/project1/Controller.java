@@ -28,9 +28,9 @@ public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
 
     @GetMapping("/wc")
-    public ResponseEntity wordCount(@RequestHeader("accept") String format, @RequestParam String url , @RequestParam(required = false, defaultValue = "false") Boolean force){
+    public ResponseEntity wordCount(@RequestHeader("accept") String format, @RequestParam String target , @RequestParam(required = false, defaultValue = "false") Boolean force){
         try {
-            Response response  = dtoService.getResponse(url);
+            Response response  = dtoService.getResponse(target);
             String etag = response.header("etag");
             if(etag == null){
                 etag = "";
