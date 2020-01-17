@@ -1,0 +1,61 @@
+test_name: Get some fake data from the JSON placeholder API
+
+stages:
+  - name: Normal request 
+    request:
+      url: http://localhost:8080/wc?url=https://muic.mahidol.ac.th/eng/ 
+      method: GET
+    response:
+      status_code: 200
+
+  - name: Force request 
+    request:
+      url: http://localhost:8080/wc?url=https://muic.mahidol.ac.th/eng/&force=true 
+      method: GET
+    response:
+      status_code: 200 
+
+
+  - name: Request to server with ETag 
+    request:
+      url: http://localhost:8080/wc?url=https://raw.githubusercontent.com/tctawan/ooc_final/master/mvnw 
+      method: GET
+    response:
+      status_code: 200 
+
+      
+  - name: Request to server with ETag again 
+    request:
+      url: http://localhost:8080/wc?url=https://raw.githubusercontent.com/tctawan/ooc_final/master/mvnw 
+      method: GET
+    response:
+      status_code: 304
+  
+  - name: Failed request 
+    request:
+      url: http://localhost:8080/wc?url=https://muic.mahidol.ac.th/ent/
+      method: GET
+    response:
+      status_code: 400
+      
+  - name: Request with application/json header
+    request:
+      url: http://localhost:8080/wc?url=https://muic.mahidol.ac.th/eng/
+      method: GET
+      headers:
+        accept: application/json
+    response:
+      status_code: 200
+      headers:
+        content-type: application/json
+
+  - name: Request with text/plain header
+    request:
+      url: http://localhost:8080/wc?url=https://muic.mahidol.ac.th/eng/
+      method: GET
+      headers:
+        accept: text/plain
+    response:
+      status_code: 200
+      headers:
+        content-type: text/plain
