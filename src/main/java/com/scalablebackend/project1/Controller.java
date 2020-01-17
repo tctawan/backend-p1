@@ -29,7 +29,6 @@ public class Controller {
 
     @GetMapping("/wc")
     public ResponseEntity wordCount(@RequestHeader("accept") String format, @RequestParam String url , @RequestParam(required = false, defaultValue = "false") Boolean force){
-        logger.info(url);
         try {
             Response response  = dtoService.getResponse(url);
             String etag = response.header("etag");

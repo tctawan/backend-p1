@@ -35,12 +35,11 @@ public class DtoService {
     @Cacheable(cacheNames="wordcount", condition = "!#force && !#etag.isEmpty()",key="#etag", sync = true)
     public Dto getWordCount(String etag, Boolean force, Document doc) throws IOException{
             int totalCount = 0;
-            logger.info("execute " + etag);
-
-            Elements elements = doc.body().getAllElements();
             List<String> list = Arrays.asList("style", "script", "head", "title", "meta", "[document]");
             Pattern pattern = Pattern.compile("\\b[a-zA-Z]{1,20}\\b");
             HashMap<String,Integer> countMap = new HashMap<>();
+            Elements elements = doc.body().getAllElements();
+            
             for(Element e : elements ){
                 if(!list.contains(e.parent().tagName())){
                     List<String> words = new ArrayList<>();
